@@ -14,26 +14,29 @@ namespace P1
             while (z == 0)
             {
                 string a = "";
-                char ci = ' ';
+                int ll;
+                string ai;
                 do
                 {
-                    a = a + ci;
-                    if (ci == '(')
-                        a = a + " ";
-                    else if (ci == ',')
-                        a = a + " ";
-                    var ch = Console.ReadKey();
-                    if (ch.Key == ConsoleKey.Enter)
+                    a = a + " ";
+                    ai = Console.ReadLine();
+                    for (int j = 0; j < ai.Length; j++)
                     {
-                        Console.WriteLine();
-                        ci = ' ';
+                        if (ai[j] == ',')
+                        {
+                            a = a + " " + ai[j] + " ";
+                        }
+                        else if (ai[j] == '(')
+                            a = a + ai[j] + " ";
+                        else if (ai[j] == ')')
+                            a = a + " " + ai[j];
+                        else
+                            a = a + ai[j];
                     }
-                    else ci = ch.KeyChar;
-                    if (ci == ',')
-                        a = a + " ";
-                    else if (ci == ')')
-                        a = a + " ";
-                } while (ci != ';');
+                    ll = a.IndexOf(";");
+                    if (ll != -1)
+                        a = a.Remove(ll);
+                } while (ll == -1);
                 Console.WriteLine();
                 a = a.TrimStart(' ');
                 a = a.TrimEnd(' ');
