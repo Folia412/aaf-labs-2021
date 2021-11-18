@@ -250,9 +250,9 @@ namespace P1
                     LastInsert(node.right, x, y);
                 else
                 {
-                    var dl = Distance(node.left, x, y);
-                    var dr = Distance(node.right, x, y);
-                    if (dl <= dr)
+                    var sl = Distance(node.left, x, y);
+                    var sr = Distance(node.right, x, y);
+                    if (sl <= sr)
                         LastInsert(node.left, x, y);
                     else LastInsert(node.right, x, y);
                 }
@@ -275,14 +275,21 @@ namespace P1
         private int Distance(Node node, int px, int py)
         {
             var r = node.rec;
-            var rx = r.x_left;
-            var ry = r.y_bottom;
-            var width = r.x_right - r.x_left;
-            var height = r.y_top - r.y_bottom;
-            var cx = Math.Max(Math.Min(px, rx + width), rx);
-            var cy = Math.Max(Math.Min(py, ry + height), ry);
-            int distance = (int)Math.Sqrt(Math.Pow(px - cx, 2) + Math.Pow(py - cy, 2));
-            return distance;
+            var rxl = r.x_left;
+            var rxr = r.x_right;
+            var ryb = r.y_bottom;
+            var ryt = r.y_top;
+            var s0 = (rxr - rxl) * (ryt - ryb);
+            if (rxl > px)
+                rxl = px;
+            else if (rxr < px)
+                rxr = px;
+            if (ryb > py)
+                ryb = py;
+            else if (ryt < py)
+                ryt = py;
+            var s1 = (rxr - rxl) * (ryt - ryb);
+            return s1 - s0;
         }
 
         private Node IncreaseBoundaries(Node node, int x, int y)
@@ -330,7 +337,7 @@ namespace P1
 
         private int PointsDistance(int x1, int y1, int x2, int y2)
         {
-            return (int)Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
+            return Math.Abs(x1 - x2) * Math.Abs(y1 - y2);
         }
 
         private void CreateRectange(Node node, int x1, int y1, int x2, int y2)
