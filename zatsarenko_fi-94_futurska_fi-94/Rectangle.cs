@@ -10,10 +10,10 @@ namespace P1
 
         public Rectangle(int x1, int x2, int y1, int y2)
         {
-            x_left = x1;
-            x_right = x2;
-            y_bottom = y1;
-            y_top = y2;
+            x_left = Math.Min(x1, x2);
+            x_right = Math.Max(x1, x2);
+            y_bottom = Math.Min(y1, y2);
+            y_top = Math.Max(y1, y2);
         }
     }
 }

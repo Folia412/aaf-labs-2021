@@ -9,7 +9,6 @@ namespace P1
     public class RTree
     {
         public Node root;
-        Node node;
 
         public RTree()
         {
@@ -19,20 +18,17 @@ namespace P1
         public void Insert(int x, int y)
         {
             if (root == null)
-                FirstInsert(x, y);
-            else
-                LastInsert(root, x, y);
+                root = new Node(x, y);
+            else Insert(root, x, y);
         }
 
         public int Print_Tree()
         {
-            string s = "";
-            if (root != null)
-            {
-                Print(root, s);
-                return 1;
-            }
-            return 0;
+            if (root == null)
+                return 0;
+            Console.WriteLine(Key(root));
+            Print(root, "");
+            return 1;
         }
 
         public bool Contains(int x, int y)
@@ -42,71 +38,131 @@ namespace P1
 
         public int Search()
         {
-            int z = Search(root, 0);
-            Console.WriteLine();
-            return z;
+            if (root == null)
+                return 0;
+            Search(root);
+            return 1;
         }
 
         public int Search(int xl, int yb, int xr, int yt)
         {
-            int z = Search(root, xl, yb, xr, yt, 0);
-            Console.WriteLine();
-            return z;
+            if (root == null)
+                return 0;
+            return Search(root, xl, yb, xr, yt, 0);
         }
 
         public int Search(int x)
         {
-            int z = Search(root, x, 0);
-            Console.WriteLine();
-            return z;
+            return Search(root, x, 0);
         }
 
         public int Search(int x, int y)
-        { 
+        {
             if (root == null)
                 return 0;
-            string[] output = { "-1", "" };
-            output = Search(root, x, y, output);
-            string s = output[1];
-            s = s.Remove(s.Length - 2);
-            Console.WriteLine(s);
+            List<string> s = null;
+            s = Search(root, x, y, s);
+            s.RemoveAt(0);
+            foreach (string i in s)
+            {
+                Console.WriteLine(i);
+            }
             return 1;
         }
 
-        private string[] Search(Node node, int x, int y, string[] output)
+        private List<string> Search(Node node, int x, int y, List<string> s)
         {
-            if (node == null) return output;
             if (node.rec != null)
             {
-                output = Search(node.left, x, y, output);
-                output = Search(node.right, x, y, output);
+                if (node.left.rec == null & node.right.rec == null)
+                {
+                    s = Search(node.left, x, y, s);
+                    s = Search(node.right, x, y, s);
+                }
+                else if (node.left.rec == null)
+                {
+                    s = Search(node.left, x, y, s);
+                    var d = RecDis(node.right.rec, x, y);
+                    if (Convert.ToDouble(s[0]) >= d)
+                        s = Search(node.right, x, y, s);
+                }
+                else if (node.right.rec == null)
+                {
+                    s = Search(node.right, x, y, s);
+                    var d = RecDis(node.left.rec, x, y);
+                    if (Convert.ToDouble(s[0]) >= d)
+                        s = Search(node.left, x, y, s);
+                }
+                else
+                {
+                    if (Hit(node.left.rec, x, y))
+                        s = Search(node.left, x, y, s);
+                    else if (Hit(node.right.rec, x, y))
+                        s = Search(node.right, x, y, s);
+                    else
+                    {
+                        var dl = RecDis(node.left.rec, x, y);
+                        var dr = RecDis(node.right.rec, x, y);
+                        if (s != null)
+                            if (Convert.ToDouble(s[0]) < Math.Min(dl, dr))
+                                return s;
+                        if (dl > dr)
+                        {
+                            s = Search(node.right, x, y, s);
+                            if (Convert.ToDouble(s[0]) >= dl)
+                                s = Search(node.left, x, y, s);
+                        }
+                        else
+                        {
+                            s = Search(node.left, x, y, s);
+                            if (Convert.ToDouble(s[0]) >= dr)
+                                s = Search(node.right, x, y, s);
+                        }
+                    }
+                }
             }
             else
             {
                 var p = node.point;
-                int d = PointsDistance(x, y, p.x, p.y);
-                if (output[0] == "-1")
+                var d = Distance(p.x, p.y, x, y);
+                if (s == null)
+                    s = new List<string>() { d.ToString(), Key(node) };
+                else if (Convert.ToDouble(s[0]) == d)
+                    s.Add(Key(node));
+                else if (d < Convert.ToDouble(s[0]))
                 {
-                    output[0] = d.ToString();
-                    output[1] = "(" + p.x.ToString() + ", " + p.y.ToString() + "), ";
-                }
-                else
-                {
-                    if (Convert.ToInt32(output[0]) > d)
-                    {
-                        output[0] = d.ToString();
-                        output[1] = "(" + p.x.ToString() + ", " + p.y.ToString() + "), ";
-                    }
-                    else if (Convert.ToInt32(output[0]) == d)
-                        output[1] = output[1] + "(" + p.x.ToString() + ", " + p.y.ToString() + "), ";
+                    s.Clear();
+                    s.Add(d.ToString());
+                    s.Add(Key(node));
                 }
             }
-            return output;
+            return s;
+        }
+
+        private double RecDis(Rectangle r, int x, int y)
+        {
+            if (x > r.x_left & x < r.x_right)
+                return Math.Min(Math.Abs(y - r.y_bottom), Math.Abs(y - r.y_top));
+            if (y > r.y_bottom & y < r.y_top)
+                return Math.Min(Math.Abs(x - r.x_right), Math.Abs(x - r.x_left));
+            if (x < r.x_left)
+            {
+                if (y > r.y_top)
+                    return Math.Sqrt(Math.Pow(x - r.x_left, 2) + Math.Pow(y - r.y_top, 2));
+                return Math.Sqrt(Math.Pow(x - r.x_left, 2) + Math.Pow(y - r.y_bottom, 2));
+            }
+            if (y > r.y_top)
+                return Math.Sqrt(Math.Pow(x - r.x_right, 2) + Math.Pow(y - r.y_top, 2));
+            return Math.Sqrt(Math.Pow(x - r.x_right, 2) + Math.Pow(y - r.y_bottom, 2));
+        }
+
+        private double Distance(int x1, int y1, int x2, int y2)
+        {
+            return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
         }
 
         private int Search(Node node, int z, int k)
         {
-            if (node == null) return k;
             if (node.rec != null)
             {
                 if (node.rec.x_left <= z)
@@ -119,22 +175,19 @@ namespace P1
             {
                 var p = node.point;
                 if (p.x < z)
-                {
-                    if (k == 0)
-                        Console.Write("({0}, {1})", p.x, p.y);
-                    else
-                        Console.Write(", ({0}, {1})", p.x, p.y);
-                    return 1;
-                }
+                    Console.WriteLine("({0}, {1})", p.x, p.y);
+                return 1;
             }
             return k;
         }
 
         private int Search(Node node, int xl, int yb, int xr, int yt, int k)
         {
-            if (node == null) return k;
             if (node.rec != null)
             {
+                var r = node.rec;
+                if (r.x_left > xr || r.x_right < xl || r.y_bottom > yt || r.y_top < yb)
+                    return k;
                 k = Search(node.left, xl, yb, xr, yt, k);
                 k = Search(node.right, xl, yb, xr, yt, k);
             }
@@ -143,34 +196,25 @@ namespace P1
                 var p = node.point;
                 if (p.x >= xl & p.x <= xr & p.y >= yb & p.y <= yt)
                 {
-                    if (k == 0)
-                        Console.Write("({0}, {1})", p.x, p.y);
-                    else
-                        Console.Write(", ({0}, {1})", p.x, p.y);
+                    Console.WriteLine("({0}, {1})", p.x, p.y);
                     return 1;
                 }
             }
             return k;
         }
 
-        private int Search(Node node, int k)
+        private void Search(Node node)
         {
-            if (node == null) return k;
             if (node.rec != null)
             {
-                k = Search(node.left, k);
-                k = Search(node.right, k);
+                Search(node.left);
+                Search(node.right);
             }
             else
             {
                 var p = node.point;
-                if (k == 0)
-                    Console.Write("({0}, {1})", p.x, p.y);
-                else
-                    Console.Write(", ({0}, {1})", p.x, p.y);
-                return 1;
+                Console.WriteLine("({0}, {1})", p.x, p.y);
             }
-            return k;
         }
 
         private bool Contain(Node node, int x, int y)
@@ -183,7 +227,7 @@ namespace P1
                 if (p.x == x & p.y == y)
                     return true;
             }
-            else if (x >= r.x_left & x <= r.x_right & y >= r.y_bottom & y <= r.y_top)
+            else if (Hit(r, x, y) == true)
             {
                 if (Contain(node.left, x, y) == true)
                     return true;
@@ -193,103 +237,85 @@ namespace P1
             return false;
         }
 
-        private int Print(Node node, string s)
+        private void Print(Node node, string s)
         {
             if (node == null)
-                return 0;
-            var r = node.rec;
-            if (r != null)
+                return;
+            bool hasLeft = (node.left != null);
+            bool hasRight = (node.right != null);
+            if (!hasLeft && !hasRight)
+                return;
+            Console.Write(s);
+            Console.Write((hasLeft && hasRight) ? "├── " : "");
+            Console.Write((!hasLeft && hasRight) ? "└── " : "");
+            if (hasRight)
             {
-                Console.WriteLine(s + "[ ({0}, {1}), ({2}, {3}) ]", r.x_left, r.y_bottom, r.x_right, r.y_top);
-                Print(node.left, "     " + s);
-                Print(node.right, "     " + s);
+                bool ps = (hasLeft && hasRight && (node.right.right != null || node.right.left != null));
+                string news = s + (ps ? "│   " : "    ");
+                Console.WriteLine(Key(node.right));
+                Print(node.right, news);
+            }
+            if (hasLeft)
+            {
+                Console.Write((hasRight ? s : ""));
+                Console.Write("└── ");
+                Console.WriteLine(Key(node.left));
+                Print(node.left, s + "    ");
+            }
+        }
+
+        private string Key(Node node)
+        {
+            if (node.rec != null)
+            {
+                var r = node.rec;
+                return "[ (" + r.x_left.ToString() + ", " + r.y_bottom.ToString() + "), (" + r.x_right.ToString() + ", " + r.y_bottom.ToString() + ") ]";
             }
             var p = node.point;
-            if (p != null)
-                Console.WriteLine(s + "({0}, {1})", p.x, p.y);
-            return 0;
+            return "(" + p.x + ", " + p.y + ")";
         }
 
-        private void FirstInsert(int x, int y)
+        private void Insert(Node node, int x, int y)
         {
-            root = new Node(null, x, x, y, y);
-            node = root;
-            node.left = new Node(node, x, x, y, y);
-            node = node.left;
-            node.left = new Node(node, x, y);
-        }
-
-        private void LastInsert(Node node, int x, int y)
-        {
-            var r = node.rec;
-            Rectangle rl, rr;
-            if (x < r.x_left || x > r.x_right || y < r.y_bottom || y > r.y_top)
+            if (node.rec == null)
+            {
+                var x0 = node.point.x;
+                var y0 = node.point.y;
+                node.rec = new Rectangle(x0, x, y0, y);
+                node.point = null;
+                node.left = new Node(x0, y0);
+                node.right = new Node(x, y);
+                return;
+            }
+            if (!Hit(node.rec, x, y))
                 node = IncreaseBoundaries(node, x, y);
-            rl = node.left.rec;
-            if (node.right != null)
-                rr = node.right.rec;
-            else rr = null;
-            if (rl == null & rr == null)
-                InsertPoint(node, x, y);
-            else if (rr == null)
+            var nl = node.left;
+            var nr = node.right;
+            int sl = 0, sr = 0;
+            if (nl.rec != null)
             {
-                if (x >= rl.x_left & x <= rl.x_right & y >= rl.y_bottom & y <= rl.y_top)
-                    LastInsert(node.left, x, y);
-                else
+                if (Hit(nl.rec, x, y))
                 {
-                    node.right = new Node(node, x, x, y, y);
-                    node = node.right;
-                    node.left = new Node(node, x, y);
+                    Insert(nl, x, y);
+                    return;
                 }
+                else sl = Square(nl.rec, x, y);
             }
-            else
+            else sl = PointsDistance(nl.point.x, nl.point.y, x, y);
+            if (nr.rec != null)
             {
-                if (x >= rl.x_left & x <= rl.x_right & y >= rl.y_bottom & y <= rl.y_top)
-                    LastInsert(node.left, x, y);
-                else if (x >= rr.x_left & x <= rr.x_right & y >= rr.y_bottom & y <= rr.y_top)
-                    LastInsert(node.right, x, y);
-                else
+                if (Hit(nr.rec, x, y))
                 {
-                    var sl = Distance(node.left, x, y);
-                    var sr = Distance(node.right, x, y);
-                    if (sl <= sr)
-                        LastInsert(node.left, x, y);
-                    else LastInsert(node.right, x, y);
+                    Insert(nr, x, y);
+                    return;
                 }
+                else sr = Square(nr.rec, x, y);
             }
-        }
-
-        private void InsertPoint(Node node, int x, int y)
-        {
-            Point pl, pr;
-            pl = node.left.point;
-            if (node.right != null)
-                pr = node.right.point;
-            else pr = null;
-            if (pr == null)
-                node.right = new Node(node, x, y);
-            else
-                SplitRectange(node, x, y);
-        }
-
-        private int Distance(Node node, int px, int py)
-        {
-            var r = node.rec;
-            var rxl = r.x_left;
-            var rxr = r.x_right;
-            var ryb = r.y_bottom;
-            var ryt = r.y_top;
-            var s0 = (rxr - rxl) * (ryt - ryb);
-            if (rxl > px)
-                rxl = px;
-            else if (rxr < px)
-                rxr = px;
-            if (ryb > py)
-                ryb = py;
-            else if (ryt < py)
-                ryt = py;
-            var s1 = (rxr - rxl) * (ryt - ryb);
-            return s1 - s0;
+            else sr = PointsDistance(nr.point.x, nr.point.y, x, y);
+            if (sl <= sr)
+                Insert(nl, x, y);
+            else Insert(nr, x, y);
+            return;
         }
 
         private Node IncreaseBoundaries(Node node, int x, int y)
@@ -306,57 +332,35 @@ namespace P1
             return node;
         }
 
-        private void SplitRectange(Node node, int x, int y)
-        {
-            int x1 = node.left.point.x;
-            int y1 = node.left.point.y;
-            int x2 = node.right.point.x;
-            int y2 = node.right.point.y;
-            node.left.point = null;
-            node.right.point = null;
-            int d0 = PointsDistance(x, y, x1, y1);
-            int d1 = PointsDistance(x1, y1, x2, y2);
-            int d2 = PointsDistance(x2, y2, x, y);
-            int min = Math.Min(d0, Math.Min(d1, d2));
-            if (d0 == min)
-            {
-                CreateRectange(node, x, y, x1, y1);
-                CreateRectange(node, x2, y2);
-            }
-            else if (d1 == min)
-            {
-                CreateRectange(node, x1, y1, x2, y2);
-                CreateRectange(node, x, y);
-            }
-            else
-            {
-                CreateRectange(node, x2, y2, x, y);
-                CreateRectange(node, x1, y1);
-            }
-        }
-
         private int PointsDistance(int x1, int y1, int x2, int y2)
         {
             return Math.Abs(x1 - x2) * Math.Abs(y1 - y2);
         }
 
-        private void CreateRectange(Node node, int x1, int y1, int x2, int y2)
+        private bool Hit(Rectangle r, int x, int y)
         {
-            int x_min = Math.Min(x1, x2);
-            int x_max = Math.Max(x1, x2);
-            int y_min = Math.Min(y1, y2);
-            int y_max = Math.Max(y1, y2);
-            node.left = new Node(node, x_min, x_max, y_min, y_max);
-            var temp = node.left;
-            temp.left = new Node(temp, x1, y1);
-            temp.right = new Node(temp, x2, y2);
+            if (x > r.x_left & x < r.x_right & y > r.y_bottom & y < r.y_top)
+                return true;
+            return false;
         }
 
-        private void CreateRectange(Node node, int x, int y)
+        private int Square(Rectangle r, int px, int py)
         {
-            node.right = new Node(node, x, x, y, y);
-            var temp = node.right;
-            temp.left = new Node(temp, x, y);
+            var rxl = r.x_left;
+            var rxr = r.x_right;
+            var ryb = r.y_bottom;
+            var ryt = r.y_top;
+            var s0 = (rxr - rxl) * (ryt - ryb);
+            if (rxl > px)
+                rxl = px;
+            else if (rxr < px)
+                rxr = px;
+            if (ryb > py)
+                ryb = py;
+            else if (ryt < py)
+                ryt = py;
+            var s1 = (rxr - rxl) * (ryt - ryb);
+            return s1 - s0;
         }
     }
 }

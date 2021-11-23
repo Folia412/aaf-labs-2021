@@ -37,7 +37,7 @@ namespace P1
                     if (ll != -1)
                         a = a.Remove(ll);
                 } while (ll == -1);
-                Console.WriteLine();
+               // Console.WriteLine();
                 a = a.TrimStart(' ');
                 a = a.TrimEnd(' ');
                 a = Regex.Replace(a, "\\s+", " ");
@@ -77,7 +77,7 @@ namespace P1
 
                         }; break;
                     case 1:
-                        Regex b2 = new Regex(@"^[iI][nN][sS][eE][rR][tT][\s][a-zA-Z][\w]*[\s][(][\s][\d]{1,}[\s][,][\s][\d]{1,}[\s][)]$");
+                        Regex b2 = new Regex(@"^[iI][nN][sS][eE][rR][tT][\s][a-zA-Z][\w]*[\s][(][\s][-]{0,1}[\d]{1,}[\s][,][\s][-]{0,1}[\d]{1,}[\s][)]$");
                         if (b2.IsMatch(a))
                         {
                             if (link.Contains(w[1]) == 0)
@@ -126,7 +126,7 @@ namespace P1
                         Console.Write("Command not recognized\n");
                         break;
                     case 4:
-                        Regex b5 = new Regex(@"^[cC][oO][nN][tT][aA][iI][nN][sS][\s][a-zA-Z][\w]*[\s][(][\s][\d]{1,}[\s][,][\s][\d]{1,}[\s][)]$");
+                        Regex b5 = new Regex(@"^[cC][oO][nN][tT][aA][iI][nN][sS][\s][a-zA-Z][\w]*[\s][(][\s][-]{0,1}[\d]{1,}[\s][,][\s][-]{0,1}[\d]{1,}[\s][)]$");
                         if (b5.IsMatch(a))
                         {
                             if (link.Contains(w[1]) == 0)
@@ -153,9 +153,9 @@ namespace P1
                         }; break;
                     case 5:
                         Regex b6 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*$");
-                        Regex b7 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*[\s][wW][hH][eE][rR][eE][\s][iI][nN][sS][iI][dD][eE][\s][(][\s][\d]{1,}[\s][,][\s][\d]{1,}[\s][)][\s][,][\s][(][\s][\d]{1,}[\s][,][\s][\d]{1,}[\s][)]$");
-                        Regex b8 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*[\s][wW][hH][eE][rR][eE][\s][lL][eE][fF][tT][_][oO][fF][\s][\d]{1,}$");
-                        Regex b9 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*[\s][wW][hH][eE][rR][eE][\s][nN][nN][\s][(][\s][\d]{1,}[\s][,][\s][\d]{1,}[\s][)]$");
+                        Regex b7 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*[\s][wW][hH][eE][rR][eE][\s][iI][nN][sS][iI][dD][eE][\s][(][\s][-]{0,1}[\d]{1,}[\s][,][\s][-]{0,1}[\d]{1,}[\s][)][\s][,][\s][(][\s][-]{0,1}[\d]{1,}[\s][,][\s][-]{0,1}[\d]{1,}[\s][)]$");
+                        Regex b8 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*[\s][wW][hH][eE][rR][eE][\s][lL][eE][fF][tT][_][oO][fF][\s][-]{0,1}[\d]{1,}$");
+                        Regex b9 = new Regex(@"^[sS][eE][aA][rR][cC][hH][\s][a-zA-Z][\w]*[\s][wW][hH][eE][rR][eE][\s][nN][nN][\s][(][\s][-]{0,1}[\d]{1,}[\s][,][\s][-]{0,1}[\d]{1,}[\s][)]$");
                         {
                             if (link.Contains(w[1]) == 0)
                             {

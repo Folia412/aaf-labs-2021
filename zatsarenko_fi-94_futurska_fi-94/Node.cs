@@ -6,22 +6,20 @@ namespace P1
 {
     public class Node
     {
-        public Node left, right, p;
+        public Node left, right;
         public Rectangle rec;
         public Point point;
 
-        public Node(Node p, int x0, int y0, int x1, int y1)
+        public Node(int x0, int y0, int x1, int y1)
         {
-            this.p = p;
             left = null;
             right = null;
             rec = new Rectangle(x0, y0, x1, y1);
             point = null;
         }
 
-        public Node(Node p, int x, int y)
+        public Node(int x, int y)
         {
-            this.p = p;
             left = null;
             right = null;
             rec = null;
