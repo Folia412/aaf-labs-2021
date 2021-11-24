@@ -53,6 +53,8 @@ namespace P1
 
         public int Search(int x)
         {
+            if (root == null)
+                return 0;
             return Search(root, x, 0);
         }
 
@@ -196,7 +198,7 @@ namespace P1
                 var p = node.point;
                 if (p.x >= xl & p.x <= xr & p.y >= yb & p.y <= yt)
                 {
-                    Console.WriteLine("({0}, {1})", p.x, p.y);
+                    Console.WriteLine(Key(node));
                     return 1;
                 }
             }
