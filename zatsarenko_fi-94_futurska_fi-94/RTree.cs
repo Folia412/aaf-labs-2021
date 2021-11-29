@@ -76,57 +76,29 @@ namespace P1
         {
             if (node.rec != null)
             {
-                if (node.left.rec == null & node.right.rec == null)
-                {
-                    s = Search(node.left, x, y, s);
-                    s = Search(node.right, x, y, s);
-                }
-                else if (node.left.rec == null)
-                {
-                    s = Search(node.left, x, y, s);
-                    var d = RecDis(node.right.rec, x, y);
-                    if (Convert.ToDouble(s[0]) >= d)
-                        s = Search(node.right, x, y, s);
-                }
-                else if (node.right.rec == null)
+                var dl = Distance(node.left, x, y);
+                Console.WriteLine(dl);
+                var dr = Distance(node.right, x, y);
+                Console.WriteLine(dr);
+                if (s != null)
+                    if (Convert.ToDouble(s[0]) < Math.Min(dl, dr))
+                        return s;
+                if (dl > dr)
                 {
                     s = Search(node.right, x, y, s);
-                    var d = RecDis(node.left.rec, x, y);
-                    if (Convert.ToDouble(s[0]) >= d)
+                    if (Convert.ToDouble(s[0]) >= dl)
                         s = Search(node.left, x, y, s);
                 }
                 else
                 {
-                    if (Hit(node.left.rec, x, y))
-                        s = Search(node.left, x, y, s);
-                    else if (Hit(node.right.rec, x, y))
+                    s = Search(node.left, x, y, s);
+                    if (Convert.ToDouble(s[0]) >= dr)
                         s = Search(node.right, x, y, s);
-                    else
-                    {
-                        var dl = RecDis(node.left.rec, x, y);
-                        var dr = RecDis(node.right.rec, x, y);
-                        if (s != null)
-                            if (Convert.ToDouble(s[0]) < Math.Min(dl, dr))
-                                return s;
-                        if (dl > dr)
-                        {
-                            s = Search(node.right, x, y, s);
-                            if (Convert.ToDouble(s[0]) >= dl)
-                                s = Search(node.left, x, y, s);
-                        }
-                        else
-                        {
-                            s = Search(node.left, x, y, s);
-                            if (Convert.ToDouble(s[0]) >= dr)
-                                s = Search(node.right, x, y, s);
-                        }
-                    }
                 }
             }
             else
             {
-                var p = node.point;
-                var d = Distance(p.x, p.y, x, y);
+                var d = Distance(node, x, y);
                 if (s == null)
                     s = new List<string>() { d.ToString(), Key(node) };
                 else if (Convert.ToDouble(s[0]) == d)
@@ -141,8 +113,13 @@ namespace P1
             return s;
         }
 
-        private double RecDis(Rectangle r, int x, int y)
+        private double Distance(Node node, int x, int y)
         {
+            if (node.rec == null)
+                return Math.Sqrt(Math.Pow(node.point.x - x, 2) + Math.Pow(node.point.y - y, 2));
+            var r = node.rec;
+            if (Hit(r, x, y))
+                return 0;
             if (x > r.x_left & x < r.x_right)
                 return Math.Min(Math.Abs(y - r.y_bottom), Math.Abs(y - r.y_top));
             if (y > r.y_bottom & y < r.y_top)
@@ -156,11 +133,6 @@ namespace P1
             if (y > r.y_top)
                 return Math.Sqrt(Math.Pow(x - r.x_right, 2) + Math.Pow(y - r.y_top, 2));
             return Math.Sqrt(Math.Pow(x - r.x_right, 2) + Math.Pow(y - r.y_bottom, 2));
-        }
-
-        private double Distance(int x1, int y1, int x2, int y2)
-        {
-            return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
         }
 
         private int Search(Node node, int z, int k)
@@ -271,7 +243,7 @@ namespace P1
             if (node.rec != null)
             {
                 var r = node.rec;
-                return "[ (" + r.x_left.ToString() + ", " + r.y_bottom.ToString() + "), (" + r.x_right.ToString() + ", " + r.y_bottom.ToString() + ") ]";
+                return "[ (" + r.x_left.ToString() + ", " + r.y_bottom.ToString() + "), (" + r.x_right.ToString() + ", " + r.y_top.ToString() + ") ]";
             }
             var p = node.point;
             return "(" + p.x + ", " + p.y + ")";
@@ -341,7 +313,7 @@ namespace P1
 
         private bool Hit(Rectangle r, int x, int y)
         {
-            if (x > r.x_left & x < r.x_right & y > r.y_bottom & y < r.y_top)
+            if (x >= r.x_left & x <= r.x_right & y >= r.y_bottom & y <= r.y_top)
                 return true;
             return false;
         }
