@@ -77,9 +77,7 @@ namespace P1
             if (node.rec != null)
             {
                 var dl = Distance(node.left, x, y);
-                Console.WriteLine(dl);
                 var dr = Distance(node.right, x, y);
-                Console.WriteLine(dr);
                 if (s != null)
                     if (Convert.ToDouble(s[0]) < Math.Min(dl, dr))
                         return s;
